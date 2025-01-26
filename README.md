@@ -56,10 +56,6 @@ For more usage examples, see the [Usage](https://directed-inputs-class.readthedo
 
 Contributions are welcome! Please see the [Contributing Guidelines](https://github.com/jbcom/directed-inputs-class/blob/main/CONTRIBUTING.md) for more information.
 
-## Credit
-
-Directed Inputs Class is written and maintained by [Your Name](mailto:yourname@example.com).
-
 ## Project Links
 
 - [**Get Help**](https://stackoverflow.com/questions/tagged/directed-inputs-class) (use the *directed-inputs-class* tag on
