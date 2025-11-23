@@ -177,8 +177,11 @@ class DirectedInputsClass:
         if is_integer and inp is not None:
             try:
                 inp = int(inp)
-            except (TypeError, ValueError) as exc:
-                message = f"Input {k} not an integer: {inp}"
+            except TypeError as exc:
+                message = f"Input {k} is of incompatible type for integer conversion: {inp!r} (type: {type(inp).__name__})"
+                raise RuntimeError(message) from exc
+            except ValueError as exc:
+                message = f"Input {k} cannot be converted to integer: {inp!r}"
                 raise RuntimeError(message) from exc
 
         if is_nothing(inp) and required:
