@@ -58,6 +58,9 @@ docs = [
 [tool.hatch.version]
 path = "src/directed_inputs_class/__init__.py"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/directed_inputs_class"]
+
 [tool.hatch.build]
 include = ["src/directed_inputs_class/py.typed"]
 
