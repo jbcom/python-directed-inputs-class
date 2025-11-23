@@ -13,9 +13,8 @@ import json
 import os
 import sys
 
-from collections.abc import Mapping
 from copy import deepcopy
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from case_insensitive_dict import CaseInsensitiveDict
 from deepmerge import Merger
@@ -27,6 +26,10 @@ from extended_data_types import (
     strtobool,
 )
 from yaml import YAMLError
+
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class DirectedInputsClass:
@@ -99,13 +102,11 @@ class DirectedInputsClass:
         if env_prefix is None:
             return dict(env)
 
-        filtered_environment = {
+        return {
             key[len(env_prefix) :] if strip_prefix else key: value
             for key, value in env.items()
             if key.startswith(env_prefix)
         }
-
-        return filtered_environment
 
     def _merge_inputs(
         self, base: Mapping[str, Any], incoming: Mapping[str, Any]
@@ -170,20 +171,18 @@ class DirectedInputsClass:
         if is_nothing(inp):
             inp = default
 
-        if is_bool:
-            if not isinstance(inp, bool):
-                inp = strtobool(inp)
+        if is_bool and not isinstance(inp, bool):
+            inp = strtobool(inp)
 
-        if is_integer and inp is not None:
-            if not isinstance(inp, int):
-                try:
-                    inp = int(inp)
-                except TypeError as exc:
-                    message = f"Input {k} is of incompatible type for integer conversion: {inp!r} (type: {type(inp).__name__})"
-                    raise RuntimeError(message) from exc
-                except ValueError as exc:
-                    message = f"Input {k} cannot be converted to integer: {inp!r}"
-                    raise RuntimeError(message) from exc
+        if is_integer and inp is not None and not isinstance(inp, int):
+            try:
+                inp = int(inp)
+            except TypeError as exc:
+                message = f"Input {k} is of incompatible type for integer conversion: {inp!r} (type: {type(inp).__name__})"
+                raise RuntimeError(message) from exc
+            except ValueError as exc:
+                message = f"Input {k} cannot be converted to integer: {inp!r}"
+                raise RuntimeError(message) from exc
 
         if is_nothing(inp) and required:
             message = f"Required input {k} not passed from inputs:\n{self.inputs}"
@@ -294,7 +293,6 @@ class DirectedInputsClass:
         Returns:
             CaseInsensitiveDict[str, Any]: The updated input mapping.
         """
-
         merged = self._merge_inputs(self.inputs, self._normalize_inputs(new_inputs))
         self.inputs = CaseInsensitiveDict(merged)
         return self.inputs
