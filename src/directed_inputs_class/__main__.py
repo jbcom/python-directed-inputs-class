@@ -76,7 +76,7 @@ class DirectedInputsClass:
 
         if from_stdin and not strtobool(os.getenv("OVERRIDE_STDIN", "False")):
             stdin_inputs = self._load_from_stdin()
-            current_inputs = self._merge_inputs(current_inputs, stdin_inputs)
+            current_inputs = self._merge_inputs(stdin_inputs, current_inputs)
 
         self.from_stdin = from_stdin
         self.inputs: CaseInsensitiveDict[str, Any] = CaseInsensitiveDict(current_inputs)
@@ -175,14 +175,15 @@ class DirectedInputsClass:
                 inp = strtobool(inp)
 
         if is_integer and inp is not None:
-            try:
-                inp = int(inp)
-            except TypeError as exc:
-                message = f"Input {k} is of incompatible type for integer conversion: {inp!r} (type: {type(inp).__name__})"
-                raise RuntimeError(message) from exc
-            except ValueError as exc:
-                message = f"Input {k} cannot be converted to integer: {inp!r}"
-                raise RuntimeError(message) from exc
+            if not isinstance(inp, int):
+                try:
+                    inp = int(inp)
+                except TypeError as exc:
+                    message = f"Input {k} is of incompatible type for integer conversion: {inp!r} (type: {type(inp).__name__})"
+                    raise RuntimeError(message) from exc
+                except ValueError as exc:
+                    message = f"Input {k} cannot be converted to integer: {inp!r}"
+                    raise RuntimeError(message) from exc
 
         if is_nothing(inp) and required:
             message = f"Required input {k} not passed from inputs:\n{self.inputs}"
@@ -220,6 +221,9 @@ class DirectedInputsClass:
             return conf
 
         conf = self._coerce_text(conf)
+
+        if not isinstance(conf, str):
+            return conf
 
         if decode_from_base64:
             try:
