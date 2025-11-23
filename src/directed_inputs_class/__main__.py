@@ -76,7 +76,7 @@ class DirectedInputsClass:
 
         if from_stdin and not strtobool(os.getenv("OVERRIDE_STDIN", "False")):
             stdin_inputs = self._load_from_stdin()
-            current_inputs = self._merge_inputs(stdin_inputs, current_inputs)
+            current_inputs = self._merge_inputs(current_inputs, stdin_inputs)
 
         self.from_stdin = from_stdin
         self.inputs: CaseInsensitiveDict[str, Any] = CaseInsensitiveDict(current_inputs)
