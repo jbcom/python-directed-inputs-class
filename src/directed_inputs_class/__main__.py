@@ -111,7 +111,7 @@ class DirectedInputsClass:
         self, base: Mapping[str, Any], incoming: Mapping[str, Any]
     ) -> dict[str, Any]:
         if is_nothing(incoming):
-            return dict(base)
+            return deepcopy(dict(base))
 
         clean_base = deepcopy(dict(base))
         clean_incoming = deepcopy(dict(incoming))
