@@ -7,10 +7,12 @@ Key Features
 ------------
 
 - **Environment Variable Integration**: Automatically integrates environment variables into your inputs, allowing for seamless configuration management.
+- **Scoped Environment Loading**: Filter environment variables by prefix and optionally strip the prefix so consumer keys stay clean.
 - **Stdin Input Handling**: Supports reading and merging inputs from stdin, with options to override default behaviors.
 - **Input Freezing and Thawing**: Freeze inputs to prevent further modifications and thaw them when needed, ensuring consistent input management.
 - **Advanced Decoding Utilities**: Decode inputs from Base64, JSON, and YAML formats with built-in error handling and customization options.
 - **Type Conversion**: Convert inputs to boolean or integer types, with robust error handling for invalid inputs.
+- **Deep Input Merging**: Merge new payloads into existing state without overwriting nested structures.
 
 Usage Examples
 --------------
@@ -49,6 +51,18 @@ Below are some examples demonstrating how to use the Directed Inputs Class libra
 
     thawed = dic.thaw_inputs()
     print(thawed)  # Outputs: {'key1': 'value1'}
+
+### Merging Additional Inputs
+
+.. code-block:: python
+
+    from directed_inputs_class import DirectedInputsClass
+
+    dic = DirectedInputsClass(inputs={"feature_flags": {"existing": True}})
+    dic.merge_inputs({"feature_flags": {"new": True}})
+
+    print(dic.inputs)
+    # Outputs: {'feature_flags': {'existing': True, 'new': True}}
 
 ### Decoding Base64 Inputs
 

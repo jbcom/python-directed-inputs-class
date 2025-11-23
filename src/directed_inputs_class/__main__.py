@@ -13,6 +13,7 @@ import json
 import os
 import sys
 
+from collections.abc import Mapping
 from copy import deepcopy
 from typing import Any
 
@@ -42,47 +43,107 @@ class DirectedInputsClass:
 
     def __init__(
         self,
-        inputs: Any | None = None,
+        inputs: Mapping[str, Any] | None = None,
         from_environment: bool = True,
         from_stdin: bool = False,
+        env_prefix: str | None = None,
+        strip_env_prefix: bool = False,
     ):
         """Initializes the DirectedInputsClass with the provided inputs.
 
         Optionally loading additional inputs from environment variables and stdin.
 
         Args:
-            inputs (Any | None): Initial inputs to be processed.
+            inputs (Mapping[str, Any] | None): Initial inputs to be processed.
             from_environment (bool): Whether to load inputs from environment variables.
             from_stdin (bool): Whether to load inputs from stdin.
+            env_prefix (str | None): Optional prefix to filter environment variables.
+            strip_env_prefix (bool): Whether to strip the prefix from environment keys.
         """
-        if inputs is None:
-            inputs = {}
-
-        if from_environment:
-            env_inputs = dict(os.environ)
-            env_inputs.update(inputs)
-            inputs = env_inputs
-
-        if from_stdin and not strtobool(os.getenv("OVERRIDE_STDIN", "False")):
-            inputs_from_stdin = sys.stdin.read()
-
-            if not is_nothing(inputs_from_stdin):
-                try:
-                    stdin_inputs = json.loads(inputs_from_stdin)
-                    stdin_inputs.update(inputs)
-                    inputs = stdin_inputs
-                except json.JSONDecodeError as exc:
-                    message = f"Failed to decode stdin:\n{inputs_from_stdin}"
-                    raise RuntimeError(message) from exc
-
-        self.from_stdin = from_stdin
-        self.inputs: CaseInsensitiveDict[str, Any] = CaseInsensitiveDict(inputs)
-        self.frozen_inputs: CaseInsensitiveDict[str, Any] = CaseInsensitiveDict()
         self.merger = Merger(
             [(list, ["append"]), (dict, ["merge"]), (set, ["union"])],
             ["override"],
             ["override"],
         )
+
+        current_inputs = self._normalize_inputs(inputs)
+
+        if from_environment:
+            env_inputs = self._filtered_environment(
+                os.environ, env_prefix=env_prefix, strip_prefix=strip_env_prefix
+            )
+            current_inputs = self._merge_inputs(env_inputs, current_inputs)
+
+        if from_stdin and not strtobool(os.getenv("OVERRIDE_STDIN", "False")):
+            stdin_inputs = self._load_from_stdin()
+            current_inputs = self._merge_inputs(stdin_inputs, current_inputs)
+
+        self.from_stdin = from_stdin
+        self.inputs: CaseInsensitiveDict[str, Any] = CaseInsensitiveDict(current_inputs)
+        self.frozen_inputs: CaseInsensitiveDict[str, Any] = CaseInsensitiveDict()
+
+    @staticmethod
+    def _normalize_inputs(inputs: Mapping[str, Any] | None) -> dict[str, Any]:
+        if inputs is None or is_nothing(inputs):
+            return {}
+
+        return dict(inputs)
+
+    @staticmethod
+    def _filtered_environment(
+        env: Mapping[str, str],
+        *,
+        env_prefix: str | None,
+        strip_prefix: bool,
+    ) -> dict[str, str]:
+        if env_prefix is None:
+            return dict(env)
+
+        filtered_environment = {
+            key[len(env_prefix) :] if strip_prefix else key: value
+            for key, value in env.items()
+            if key.startswith(env_prefix)
+        }
+
+        return filtered_environment
+
+    def _merge_inputs(
+        self, base: Mapping[str, Any], incoming: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        if is_nothing(incoming):
+            return dict(base)
+
+        clean_base = deepcopy(dict(base))
+        clean_incoming = deepcopy(dict(incoming))
+
+        return self.merger.merge(clean_base, clean_incoming)
+
+    @staticmethod
+    def _load_from_stdin() -> dict[str, Any]:
+        inputs_from_stdin = sys.stdin.read()
+
+        if is_nothing(inputs_from_stdin):
+            return {}
+
+        try:
+            return json.loads(inputs_from_stdin)
+        except json.JSONDecodeError as exc:
+            message = f"Failed to decode stdin:\n{inputs_from_stdin}"
+            raise RuntimeError(message) from exc
+
+    @staticmethod
+    def _coerce_text(value: Any) -> Any:
+        if isinstance(value, memoryview):
+            return value.tobytes().decode("utf-8")
+
+        if isinstance(value, (bytes, bytearray)):
+            try:
+                return value.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                message = f"Failed to decode bytes to string: {value}"
+                raise RuntimeError(message) from exc
+
+        return value
 
     def get_input(
         self,
@@ -110,12 +171,13 @@ class DirectedInputsClass:
             inp = default
 
         if is_bool:
-            inp = strtobool(inp)
+            if not isinstance(inp, bool):
+                inp = strtobool(inp)
 
         if is_integer and inp is not None:
             try:
                 inp = int(inp)
-            except TypeError as exc:
+            except (TypeError, ValueError) as exc:
                 message = f"Input {k} not an integer: {inp}"
                 raise RuntimeError(message) from exc
 
@@ -151,8 +213,10 @@ class DirectedInputsClass:
         """
         conf = self.get_input(k, default=default, required=required)
 
-        if conf is None or conf == default or not isinstance(conf, str):
+        if conf is None or conf == default:
             return conf
+
+        conf = self._coerce_text(conf)
 
         if decode_from_base64:
             try:
@@ -163,15 +227,6 @@ class DirectedInputsClass:
                 )
             except binascii.Error as exc:
                 message = f"Failed to decode {conf} from base64"
-                raise RuntimeError(message) from exc
-
-        if isinstance(conf, memoryview):
-            conf = conf.tobytes().decode("utf-8")
-        elif isinstance(conf, (bytes, bytearray)):
-            try:
-                conf = conf.decode("utf-8")
-            except UnicodeDecodeError as exc:
-                message = f"Failed to decode bytes to string: {conf}"
                 raise RuntimeError(message) from exc
 
         if decode_from_yaml:
@@ -219,6 +274,22 @@ class DirectedInputsClass:
             deepcopy(self.inputs), deepcopy(self.frozen_inputs)
         )
         self.frozen_inputs = CaseInsensitiveDict()
+        return self.inputs
+
+    def merge_inputs(
+        self, new_inputs: Mapping[str, Any] | None
+    ) -> CaseInsensitiveDict[str, Any]:
+        """Merge new inputs into the current inputs using deep merge semantics.
+
+        Args:
+            new_inputs (Mapping[str, Any] | None): Incoming values to merge.
+
+        Returns:
+            CaseInsensitiveDict[str, Any]: The updated input mapping.
+        """
+
+        merged = self._merge_inputs(self.inputs, self._normalize_inputs(new_inputs))
+        self.inputs = CaseInsensitiveDict(merged)
         return self.inputs
 
     def shift_inputs(self) -> CaseInsensitiveDict[str, Any]:

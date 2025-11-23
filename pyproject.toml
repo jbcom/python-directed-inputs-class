@@ -25,7 +25,6 @@ dependencies = [
     "case-insensitive-dictionary>=0.2.1",
     "deepmerge>=1.1.1",
     "extended-data-types>=3.0.1",
-    "future>=1.0.0",
 ]
 
 [project.urls]
@@ -58,6 +57,9 @@ docs = [
 
 [tool.hatch.version]
 path = "src/directed_inputs_class/__init__.py"
+
+[tool.hatch.build]
+include = ["src/directed_inputs_class/py.typed"]
 
 [tool.hatch.envs.default]
 type = "virtual"
