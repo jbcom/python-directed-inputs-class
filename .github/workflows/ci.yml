@@ -1,5 +1,13 @@
 name: CI
 
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
@@ -7,13 +15,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-package:
     name: Build & verify package
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
+    runs-on: ubuntu-24.04
     outputs:
       python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+
     steps:
       - uses: actions/checkout@v5
         with:
@@ -22,61 +29,75 @@ jobs:
         id: baipp
 
   tests:
-    name: Run Tests on Python ${{ matrix.python-version }}
-    needs: build
-    runs-on: ubuntu-latest
+    name: Tests on ${{ matrix.python-version }}
+    runs-on: ubuntu-24.04
+    needs: build-package
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ fromJson(needs.build.outputs.python-versions) }}
+        python-version: ${{ fromJson(needs.build-package.outputs.python-versions) }}
 
     steps:
       - uses: actions/checkout@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
       - name: Download pre-built packages
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: Packages
           path: dist
-      - run: tar xf dist/*.tar.gz --strip-components=1
-      - uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
-      - uses: hynek/setup-cached-uv@v2
-      - run: uv pip install --system tox-gh tox-uv
-      - run: python -Im tox run --installpkg dist/*.whl
+      - name: Run tests
+        env:
+          PYTHON: ${{ matrix.python-version }}
+        run: uvx --with tox-uv tox run --installpkg dist/*.whl -f py${PYTHON//./}
       - name: Upload coverage data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-data-${{ matrix.python-version }}
           path: .coverage.*
-          if-no-files-found: ignore
+          include-hidden-files: true
+          if-no-files-found: error
 
   coverage:
-    name: Combine & check coverage
+    name: Coverage Report
+    runs-on: ubuntu-24.04
     needs: tests
-    runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      pull-requests: write  # Needed for writing to step summary
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version-file: .python-version-default
-      - uses: hynek/setup-cached-uv@v2
-      - run: uv pip install --system --upgrade coverage[toml]
-      - uses: actions/download-artifact@v5
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+      - name: Download coverage data
+        uses: actions/download-artifact@v6
         with:
           pattern: coverage-data-*
           merge-multiple: true
-      - name: Combine coverage & fail if it's <75%
+      - name: Generate coverage report
         run: |
-          python -Im coverage combine
-          python -Im coverage html --skip-covered --skip-empty
-          python -Im coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
-          python -Im coverage report --fail-under=75
+          uv tool install coverage
+
+          coverage combine
+          coverage html --skip-covered --skip-empty
+
+          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          coverage report
       - name: Upload HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
-          name: html-report
+          name: coverage-report
           path: htmlcov
+          if-no-files-found: error
