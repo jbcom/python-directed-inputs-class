@@ -15,10 +15,12 @@ Directed Inputs Class is a Python library that provides a flexible and robust in
 ## Key Features
 
 - 🧩 **Environment Variable Integration** - Seamlessly integrates environment variables into your inputs.
+- 🧭 **Scoped Environment Loading** - Filter environment variables by prefix and optionally strip it for clean keys.
 - 📥 **Stdin Input Handling** - Read and merge inputs from stdin with optional overrides.
 - ❄️ **Input Freezing and Thawing** - Freeze inputs to prevent modifications, and thaw them when needed.
 - 🔄 **Advanced Decoding Utilities** - Decode inputs from Base64, JSON, and YAML formats with error handling.
 - 🔧 **Type Conversion** - Convert inputs to boolean or integer types with robust error handling.
+- 🧬 **Deep Input Merging** - Merge additional inputs into existing state without losing nested structure.
 
 ### Example Usage
 
@@ -48,6 +50,9 @@ print(frozen_inputs)  # Outputs: {'key1': 'value1'}
 # Thaw the inputs
 thawed_inputs = dic.thaw_inputs()
 print(thawed_inputs)  # Outputs: {'key1': 'value1'}
+
+# Merge additional data safely
+dic.merge_inputs({"feature_flags": {"new": True}})
 ```
 
 For more usage examples, see the [Usage](https://directed-inputs-class.readthedocs.io/en/latest/usage.md) documentation.
