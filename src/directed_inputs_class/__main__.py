@@ -17,13 +17,17 @@ from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 from case_insensitive_dict import CaseInsensitiveDict
-from deepmerge import Merger
+from deepmerge import Merger  # type: ignore[attr-defined]
 from extended_data_types import (
     base64_decode,
     decode_json,
     decode_yaml,
     is_nothing,
     strtobool,
+    strtodatetime,
+    strtofloat,
+    strtoint,
+    strtopath,
 )
 from yaml import YAMLError
 
@@ -127,7 +131,8 @@ class DirectedInputsClass:
             return {}
 
         try:
-            return json.loads(inputs_from_stdin)
+            decoded_stdin: dict[str, Any] = json.loads(inputs_from_stdin)
+            return decoded_stdin
         except json.JSONDecodeError as exc:
             message = f"Failed to decode stdin:\n{inputs_from_stdin}"
             raise RuntimeError(message) from exc
@@ -141,7 +146,7 @@ class DirectedInputsClass:
             try:
                 return value.decode("utf-8")
             except UnicodeDecodeError as exc:
-                message = f"Failed to decode bytes to string: {value}"
+                message = f"Failed to decode bytes to string: {value!r}"
                 raise RuntimeError(message) from exc
 
         return value
@@ -153,8 +158,14 @@ class DirectedInputsClass:
         required: bool = False,
         is_bool: bool = False,
         is_integer: bool = False,
+        is_float: bool = False,
+        is_path: bool = False,
+        is_datetime: bool = False,
     ) -> Any:
         """Retrieves an input by key, with options for type conversion and default values.
+
+        This method leverages extended-data-types utilities for robust type conversions,
+        including support for Path objects, datetime parsing, and numeric conversions.
 
         Args:
             k (str): The key for the input.
@@ -162,6 +173,9 @@ class DirectedInputsClass:
             required (bool): Whether the input is required. Raises an error if required and not found.
             is_bool (bool): Whether to convert the input to a boolean.
             is_integer (bool): Whether to convert the input to an integer.
+            is_float (bool): Whether to convert the input to a float.
+            is_path (bool): Whether to convert the input to a Path object.
+            is_datetime (bool): Whether to convert the input to a datetime object.
 
         Returns:
             Any: The retrieved input, potentially converted or defaulted.
@@ -176,12 +190,30 @@ class DirectedInputsClass:
 
         if is_integer and inp is not None and not isinstance(inp, int):
             try:
-                inp = int(inp)
-            except TypeError as exc:
-                message = f"Input {k} is of incompatible type for integer conversion: {inp!r} (type: {type(inp).__name__})"
-                raise RuntimeError(message) from exc
-            except ValueError as exc:
+                inp = strtoint(inp)
+            except (TypeError, ValueError) as exc:
                 message = f"Input {k} cannot be converted to integer: {inp!r}"
+                raise RuntimeError(message) from exc
+
+        if is_float and inp is not None and not isinstance(inp, float):
+            try:
+                inp = strtofloat(str(inp))
+            except (TypeError, ValueError) as exc:
+                message = f"Input {k} cannot be converted to float: {inp!r}"
+                raise RuntimeError(message) from exc
+
+        if is_path and inp is not None:
+            try:
+                inp = strtopath(str(inp))
+            except (TypeError, ValueError) as exc:
+                message = f"Input {k} cannot be converted to Path: {inp!r}"
+                raise RuntimeError(message) from exc
+
+        if is_datetime and inp is not None:
+            try:
+                inp = strtodatetime(str(inp))
+            except (TypeError, ValueError) as exc:
+                message = f"Input {k} cannot be converted to datetime: {inp!r}"
                 raise RuntimeError(message) from exc
 
         if is_nothing(inp) and required:

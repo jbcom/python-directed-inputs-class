@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "case-insensitive-dictionary>=0.2.1",
     "deepmerge>=1.1.1",
-    "extended-data-types>=3.0.1,!=5.0.*,!=5.1.0",  # Temporary: 5.x has ruamel bug fixed in PR #31
+    "extended-data-types>=5.2.0",
     "PyYAML>=6.0",
 ]
 
@@ -123,14 +123,5 @@ no_incremental = true
 module = ["wrapt.*", "deepmerge.*"]
 ignore_missing_imports = true
 
-[tool.commitizen]
-name = "cz_conventional_commits"
-version = "1.0.0"
-version_files = [
-    "src/directed_inputs_class/__init__.py:__version__",
-]
-tag_format = "$version"
-annotated_tag = true
-update_changelog_on_bump = true
-bump_message = "New release: $current_version → $new_version [skip actions]"
-template = "docs/templates/CHANGELOG.md.j2"
+# Version management is handled by python-semantic-release in .github/workflows/ci.yml
+# Commitizen config removed to avoid conflicts with the unified workflow approach

@@ -43,7 +43,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ### Feat
 
 - upgraded to the latest extended-data-types which requires dropping support for Python 3.8
-      
 
 ## [0.1.2](https://github.com/jbcom/extended-data-types/tree/0.1.2) - 2024-10-01
 
