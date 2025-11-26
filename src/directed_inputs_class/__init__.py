@@ -9,6 +9,6 @@ from __future__ import annotations
 from .__main__ import DirectedInputsClass
 
 
-__version__ = "2025.11.0"
+__version__ = "202511.2"
 
 __all__ = ["DirectedInputsClass"]
