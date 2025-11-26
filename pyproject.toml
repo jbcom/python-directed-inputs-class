@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "case-insensitive-dictionary>=0.2.1",
     "deepmerge>=1.1.1",
-    "extended-data-types>=5.2.0",
+    "extended-data-types>=2025.11.164",
     "PyYAML>=6.0",
 ]
 
@@ -122,12 +122,3 @@ no_incremental = true
 [[tool.mypy.overrides]]
 module = ["wrapt.*", "deepmerge.*"]
 ignore_missing_imports = true
-
-[tool.semantic_release]
-branch = "main"
-allow_zero_version = false
-version_variables = [
-    "src/directed_inputs_class/__init__.py:__version__",
-]
-build_command = "python -m build"
-upload_to_vcs_release = true

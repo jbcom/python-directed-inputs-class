@@ -2,23 +2,23 @@
 
 ## CI/CD Workflow - Read This First! 🚨
 
-This repository uses a **unified CI workflow** in `.github/workflows/ci.yml`. This is an intentional design that:
+This repository uses **CalVer auto-versioning** with automatic PyPI releases. Every push to main = new release.
 
 ### ✅ What is CORRECT (Do not suggest changing):
 
-1. **No `[tool.semantic_release]` in pyproject.toml** - Configuration is in workflow YAML
-2. **`commit: false`** - We don't want automated version bump commits
-3. **`changelog: false`** - Changelogs are managed manually for better quality
-4. **`push: false`** - Tags are already in GitHub, no need to push back
-5. **`build: false`** - We use `hynek/build-and-inspect-python-package` instead
+1. **CalVer versioning: `YYYY.MM.BUILD`** - Auto-generated, no manual management
+2. **No git tags** - Version only in PyPI package metadata
+3. **No semantic-release** - We removed it for simplicity
+4. **Auto-publish to PyPI** - Every main push gets released after tests pass
+5. **No conditional releases** - Simple and predictable
 
 ### ❌ Do NOT Suggest:
 
-- Adding semantic-release config to pyproject.toml
-- Splitting ci.yml into multiple workflow files
-- Enabling automatic changelog generation
-- Changing release workflow parameters
-- "Fixing" the artifact download action versions (both v4 and v6 are intentional)
+- Adding semantic-release or conventional commits
+- Using git tags for versioning
+- Manual version management
+- Conditional release logic
+- SemVer instead of CalVer
 
 ## Code Guidelines
 
@@ -51,12 +51,12 @@ def func(data: Dict[str, Any]) -> Dict[str, Any]:
 
 ## Version Management
 
-Version is defined in `src/directed_inputs_class/__init__.py`:
-```python
-__version__ = "1.0.0"
-```
+Version is auto-generated during CI using `.github/scripts/set_version.py`:
+- Format: `YYYY.MM.BUILD_NUMBER`
+- Example: `2025.11.42`
+- Updated automatically in `__init__.py` during release build
 
-DO NOT suggest automated version bumping. Semantic-release reads this for version detection but does not write back to it.
+DO NOT suggest manual version management. It's fully automated.
 
 ## Questions?
 
