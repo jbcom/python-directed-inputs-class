@@ -1,0 +1,20 @@
+# directed-inputs-class Development
+
+## Package Overview
+
+Decorator library for CLI argument and configuration.
+
+## Commands
+
+```bash
+uv sync --extra tests    # Install deps
+uv run pytest tests/ -v  # Run tests
+uvx ruff check src/      # Lint
+uv build                 # Build package
+```
+
+## Key Patterns
+
+- Use absolute imports
+- Add `from __future__ import annotations`
+- Follow conventional commits
