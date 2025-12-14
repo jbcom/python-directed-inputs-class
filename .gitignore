@@ -50,5 +50,13 @@ Thumbs.db
 *.log
 .cache/
 
+# Sphinx documentation build
+docs/_build/
+docs/apidocs/
+
+# Type checking
+.mypy_cache/
+.ruff_cache/
+
 # uv
 uv.lock

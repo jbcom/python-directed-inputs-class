@@ -19,6 +19,7 @@ from __future__ import annotations
 import functools
 import inspect
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -26,7 +27,7 @@ from directed_inputs_class.__main__ import DirectedInputsClass
 
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, MutableMapping
+    from collections.abc import MutableMapping
 
 __all__ = ["DirectedInputsMetadata", "InputConfig", "directed_inputs", "input_config"]
 
@@ -173,7 +174,7 @@ def input_config(
             default=default_value,
             **config_kwargs,
         )
-        func._directed_inputs_configs = config_map  # noqa: SLF001
+        func._directed_inputs_configs = config_map  # type: ignore[attr-defined]  # noqa: SLF001
         return func
 
     return decorator
@@ -217,7 +218,27 @@ def directed_inputs(
             merged_options = dict(base_options)
             merged_options.update({k: v for k, v in overrides.items() if v is not None})
 
-            self._directed_inputs_context = InputContext(**merged_options)
+            # Extract and validate InputContext-specific options
+            ctx_inputs = merged_options.get("inputs")
+            ctx_env_prefix = merged_options.get("env_prefix")
+
+            # Runtime type validation for non-boolean options
+            if ctx_inputs is not None and not isinstance(ctx_inputs, Mapping):
+                msg = (
+                    f"inputs must be a Mapping or None, got {type(ctx_inputs).__name__}"
+                )
+                raise TypeError(msg)
+            if ctx_env_prefix is not None and not isinstance(ctx_env_prefix, str):
+                msg = f"env_prefix must be a str or None, got {type(ctx_env_prefix).__name__}"
+                raise TypeError(msg)
+
+            self._directed_inputs_context = InputContext(
+                inputs=ctx_inputs,
+                from_environment=bool(merged_options.get("from_environment", True)),
+                from_stdin=bool(merged_options.get("from_stdin", False)),
+                env_prefix=ctx_env_prefix,
+                strip_env_prefix=bool(merged_options.get("strip_env_prefix", False)),
+            )
             self._directed_inputs_runtime_settings = runtime_settings
 
             if runtime_logging and not hasattr(self, "logging"):
@@ -226,7 +247,7 @@ def directed_inputs(
 
             original_init(self, *args, **kwargs)
 
-        cls.__init__ = wrapped_init  # type: ignore[assignment]
+        cls.__init__ = wrapped_init
 
         _inject_proxies(cls)
         _wrap_instance_methods(cls)
@@ -240,18 +261,17 @@ def _inject_proxies(cls: type[Any]) -> None:
     """Inject helper properties/methods for interacting with the context."""
 
     def _get_context(self: Any) -> InputContext:
-        context = getattr(self, "_directed_inputs_context", None)
+        context: InputContext | None = getattr(self, "_directed_inputs_context", None)
         if context is None:
             raise AttributeError(_ERR_CONTEXT_NOT_INITIALIZED)
         return context
 
     if not hasattr(cls, "directed_inputs"):
 
-        @property
-        def directed_inputs(self: Any) -> DirectedInputsClass:
+        def _get_directed_inputs(self: Any) -> DirectedInputsClass:
             return _get_context(self).directed_inputs
 
-        cls.directed_inputs = directed_inputs
+        cls.directed_inputs = property(_get_directed_inputs)
 
     if not hasattr(cls, "refresh_inputs"):
 
