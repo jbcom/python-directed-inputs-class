@@ -2,14 +2,15 @@
 
 <!-- version list -->
 
-## v0.9.0 (2025-12-14)
+## v2.0.0 (2025-12-15)
 
 ### BREAKING CHANGES
 
-- **Versioning Migration**: Migrated from date-based versioning (202511.9.0) to semantic versioning (0.9.0)
-  - This is a breaking change for downstream packages that depend on this package with date-based version constraints
-  - Downstream packages (python-terraform-bridge, vendor-connectors) will need to update their dependency constraints to use semver ranges
-  - Example: Change `directed-inputs-class>=202511.9.0` to `directed-inputs-class>=0.9.0`
+- **Versioning Migration**: Migrated from date-based versioning (202511.9.0) to semantic versioning (2.0.0)
+  - Version 2.0.0 chosen to be above existing published semver versions (1.0.0) and avoid collisions
+  - This follows the same migration pattern used in extended-data-types (202511.8.0 → 5.x.x)
+  - Downstream packages (python-terraform-bridge, vendor-connectors) must update their dependency constraints
+  - Example: Change `directed-inputs-class>=202511.9.0` to `directed-inputs-class>=2.0.0`
 
 ## v202511.9.0 (2025-12-01)
 
