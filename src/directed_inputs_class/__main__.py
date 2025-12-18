@@ -76,9 +76,7 @@ class DirectedInputsClass:
         current_inputs = self._normalize_inputs(inputs)
 
         if from_environment:
-            env_inputs = self._filtered_environment(
-                os.environ, env_prefix=env_prefix, strip_prefix=strip_env_prefix
-            )
+            env_inputs = self._filtered_environment(os.environ, env_prefix=env_prefix, strip_prefix=strip_env_prefix)
             current_inputs = self._merge_inputs(env_inputs, current_inputs)
 
         if from_stdin and not strtobool(os.getenv("OVERRIDE_STDIN", "False")):
@@ -112,9 +110,7 @@ class DirectedInputsClass:
             if key.startswith(env_prefix)
         }
 
-    def _merge_inputs(
-        self, base: Mapping[str, Any], incoming: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def _merge_inputs(self, base: Mapping[str, Any], incoming: Mapping[str, Any]) -> dict[str, Any]:
         if is_nothing(incoming):
             return deepcopy(dict(base))
 
@@ -310,15 +306,11 @@ class DirectedInputsClass:
             self.frozen_inputs = CaseInsensitiveDict()
             return self.inputs
 
-        self.inputs = self.merger.merge(
-            deepcopy(self.inputs), deepcopy(self.frozen_inputs)
-        )
+        self.inputs = self.merger.merge(deepcopy(self.inputs), deepcopy(self.frozen_inputs))
         self.frozen_inputs = CaseInsensitiveDict()
         return self.inputs
 
-    def merge_inputs(
-        self, new_inputs: Mapping[str, Any] | None
-    ) -> CaseInsensitiveDict[str, Any]:
+    def merge_inputs(self, new_inputs: Mapping[str, Any] | None) -> CaseInsensitiveDict[str, Any]:
         """Merge new inputs into the current inputs using deep merge semantics.
 
         Args:
