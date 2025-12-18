@@ -20,6 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
 ]
 dependencies = [
@@ -82,12 +83,14 @@ skip_covered = true
 exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
 
 [tool.ruff]
+target-version = "py39"
+line-length = 120
 src = ["directed_inputs_class", "tests"]
 exclude = ["docs"]
 
 [tool.ruff.lint]
-select = ["ALL"]
-ignore = ["ANN", "COM", "E501", "FBT", "PLR0913", "C901", "TRY300"]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
+ignore = []
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

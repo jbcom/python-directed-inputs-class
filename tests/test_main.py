@@ -173,9 +173,7 @@ def test_decode_input_base64():
     """
     encoded_value = base64_encode(json.dumps({"name": "test"}).encode())
     dic = DirectedInputsClass(inputs={"base64_key": encoded_value})
-    decoded = dic.decode_input(
-        "base64_key", decode_from_base64=True, decode_from_json=True
-    )
+    decoded = dic.decode_input("base64_key", decode_from_base64=True, decode_from_json=True)
     assert decoded == {"name": "test"}
 
 
@@ -183,9 +181,7 @@ def test_decode_input_base64_from_bytes():
     """Base64 encoded bytes can be decoded and parsed."""
     encoded_value = base64_encode(json.dumps({"name": "test"}).encode())
     dic = DirectedInputsClass(inputs={"base64_key": encoded_value.encode()})
-    decoded = dic.decode_input(
-        "base64_key", decode_from_base64=True, decode_from_json=True
-    )
+    decoded = dic.decode_input("base64_key", decode_from_base64=True, decode_from_json=True)
 
     assert decoded == {"name": "test"}
 
@@ -245,9 +241,7 @@ def test_environment_prefix_filter(monkeypatch):
     monkeypatch.setenv("APP_BETA", "beta")
     monkeypatch.setenv("UNSCOPED", "nope")
 
-    dic = DirectedInputsClass(
-        from_environment=True, env_prefix="APP_", strip_env_prefix=True
-    )
+    dic = DirectedInputsClass(from_environment=True, env_prefix="APP_", strip_env_prefix=True)
 
     assert dic.inputs["ALPHA"] == "alpha"
     assert dic.inputs["BETA"] == "beta"

@@ -1,6 +1,8 @@
 # Configuration file for the Sphinx documentation builder.
 # Synced from jbcom-control-center - customize as needed
 
+from __future__ import annotations
+
 import os
 import sys
 
@@ -8,8 +10,7 @@ import sys
 sys.path.insert(0, os.path.abspath("../src"))
 
 # -- Project information -----------------------------------------------------
-# TODO: Update these for your project
-project = "PACKAGE_NAME"
+project = "directed-inputs-class"
 copyright = "2025, Jon Bogaty"
 author = "Jon Bogaty"
 

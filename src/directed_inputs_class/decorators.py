@@ -42,9 +42,7 @@ _RUNTIME_LOGGING_KWARG = "_directed_inputs_runtime_logging"
 _RUNTIME_SETTINGS_KWARG = "_directed_inputs_runtime_settings"
 
 # Error messages
-_ERR_CONTEXT_NOT_INITIALIZED = (
-    "directed_inputs decorator not initialized on this instance"
-)
+_ERR_CONTEXT_NOT_INITIALIZED = "directed_inputs decorator not initialized on this instance"
 _ERR_CONTEXT_MISSING = "directed_inputs context missing on instance"
 
 
@@ -94,12 +92,7 @@ class InputConfig:
                 is_datetime=self.is_datetime,
             )
 
-        if (
-            value is None
-            and not source_present
-            and self.default is _MISSING
-            and not self.required
-        ):
+        if value is None and not source_present and self.default is _MISSING and not self.required:
             return _MISSING
 
         return value
@@ -159,16 +152,12 @@ class InputContext:
         return self._instance
 
 
-def input_config(
-    parameter_name: str, **config_kwargs: Any
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def input_config(parameter_name: str, **config_kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Configure how a method parameter is populated from inputs."""
     default_value = config_kwargs.pop("default", _MISSING)
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        config_map: MutableMapping[str, InputConfig] = getattr(
-            func, "_directed_inputs_configs", {}
-        ).copy()
+        config_map: MutableMapping[str, InputConfig] = getattr(func, "_directed_inputs_configs", {}).copy()
         config_map[parameter_name] = InputConfig(
             parameter_name=parameter_name,
             default=default_value,
@@ -201,9 +190,7 @@ def directed_inputs(
         if getattr(cls, "__directed_inputs_enabled__", False):
             return cls
 
-        metadata = DirectedInputsMetadata(
-            options={k: v for k, v in base_options.items() if v is not None}
-        )
+        metadata = DirectedInputsMetadata(options={k: v for k, v in base_options.items() if v is not None})
         cls.__directed_inputs_enabled__ = True
         cls.__directed_inputs_metadata__ = metadata
 
@@ -224,9 +211,7 @@ def directed_inputs(
 
             # Runtime type validation for non-boolean options
             if ctx_inputs is not None and not isinstance(ctx_inputs, Mapping):
-                msg = (
-                    f"inputs must be a Mapping or None, got {type(ctx_inputs).__name__}"
-                )
+                msg = f"inputs must be a Mapping or None, got {type(ctx_inputs).__name__}"
                 raise TypeError(msg)
             if ctx_env_prefix is not None and not isinstance(ctx_env_prefix, str):
                 msg = f"env_prefix must be a str or None, got {type(ctx_env_prefix).__name__}"
@@ -298,9 +283,7 @@ def _wrap_instance_methods(cls: type[Any]) -> None:
             fn_configs: dict[str, InputConfig],
             coroutine: bool,
         ) -> Callable[..., Any]:
-            def _prepare_bound(
-                instance: Any, args: tuple[Any, ...], kwargs: dict[str, Any]
-            ) -> inspect.BoundArguments:
+            def _prepare_bound(instance: Any, args: tuple[Any, ...], kwargs: dict[str, Any]) -> inspect.BoundArguments:
                 bound = sig.bind_partial(instance, *args, **kwargs)
                 for param_name, parameter in sig.parameters.items():
                     if param_name == "self" or param_name in bound.arguments:
@@ -311,9 +294,7 @@ def _wrap_instance_methods(cls: type[Any]) -> None:
                     ):
                         continue
 
-                    config = fn_configs.get(param_name) or InputConfig(
-                        parameter_name=param_name
-                    )
+                    config = fn_configs.get(param_name) or InputConfig(parameter_name=param_name)
                     context = getattr(instance, "_directed_inputs_context", None)
                     if context is None:
                         raise AttributeError(_ERR_CONTEXT_MISSING)
