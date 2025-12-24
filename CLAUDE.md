@@ -67,7 +67,7 @@ uv build
 ### Core Dependencies
 - `case-insensitive-dictionary>=0.2.1` - Case-insensitive dict for inputs
 - `deepmerge>=1.1.1` - Deep merge for combining inputs
-- `extended-data-types>=2025.11.164` - Type coercion utilities (jbcom ecosystem)
+- `extended-data-types>=5.1.2` - Type coercion utilities (jbcom ecosystem)
 - `PyYAML>=6.0` - YAML parsing
 
 ### Ecosystem Position
@@ -77,8 +77,8 @@ This package is part of the jbcom ecosystem:
 
 ## Versioning
 
-This project uses **CalVer** (Calendar Versioning):
-- Format: `YYYYMM.MINOR.PATCH` (e.g., `202511.9.0`)
+This project uses **SemVer** (Semantic Versioning):
+- Format: `MAJOR.MINOR.PATCH` (e.g., `1.1.0`)
 - Releases are automated via GitHub Actions CI workflow
 - Uses `python-semantic-release` for changelog and version management
 
