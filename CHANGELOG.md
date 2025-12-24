@@ -2,6 +2,12 @@
 
 <!-- version list -->
 
+## v1.1.0 (2025-12-24)
+
+### Bug Fixes
+
+- Update dependency to `extended-data-types>=5.1.2` to fix `ruamel.yaml` import issue
+
 ## v0.1.0 (2025-12-23)
 
 - Initial Release
