@@ -97,7 +97,6 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.CI_GITHUB_TOKEN }}
-          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v6
