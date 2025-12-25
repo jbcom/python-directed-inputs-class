@@ -1,29 +1,171 @@
-/* Custom CSS for Sphinx documentation */
-/* Synced from jbcom-control-center */
+/* jbcom Brand Styling for Sphinx RTD Theme */
 
-/* Improve code block readability */
-.highlight {
-    background: #f8f8f8;
-    border-radius: 4px;
+/* Color Variables */
+:root {
+  --jbcom-bg: #0a0f1a;
+  --jbcom-surface: #111827;
+  --jbcom-primary: #06b6d4;
+  --jbcom-secondary: #3b82f6;
+  --jbcom-text-primary: #f1f5f9;
+  --jbcom-text-secondary: #94a3b8;
+  --jbcom-success: #10b981;
+  --jbcom-warning: #f59e0b;
+  --jbcom-error: #ef4444;
 }
 
-/* Better table styling */
-table.docutils {
-    border-collapse: collapse;
-    width: 100%;
+/* Typography */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap');
+
+/* Global Background */
+body {
+  background-color: var(--jbcom-bg) !important;
+  color: var(--jbcom-text-primary) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
 }
 
-table.docutils td, table.docutils th {
-    padding: 8px 12px;
-    border: 1px solid #e1e4e5;
+/* Headings */
+h1, h2, h3, h4, h5, h6, .rst-content h1, .rst-content h2, .rst-content h3, .rst-content h4, .rst-content h5, .rst-content h6 {
+  font-family: 'Space Grotesk', sans-serif !important;
+  color: var(--jbcom-text-primary) !important;
+  font-weight: 600 !important;
 }
 
-/* Improve sidebar navigation */
+/* Sidebar */
+.wy-nav-side {
+  background: var(--jbcom-surface) !important;
+}
+
+.wy-side-nav-search {
+  background-color: var(--jbcom-bg) !important;
+}
+
+.wy-side-nav-search > a,
+.wy-side-nav-search .wy-dropdown > a {
+  color: var(--jbcom-text-primary) !important;
+}
+
+.wy-menu-vertical a {
+  color: var(--jbcom-text-secondary) !important;
+}
+
+.wy-menu-vertical a:hover {
+  background-color: rgba(6, 182, 212, 0.1) !important;
+  color: var(--jbcom-primary) !important;
+}
+
+.wy-menu-vertical li.current a {
+  background: rgba(6, 182, 212, 0.15) !important;
+  color: var(--jbcom-primary) !important;
+  border-right: 2px solid var(--jbcom-primary) !important;
+}
+
+/* Main Content Area */
+.wy-nav-content-wrap {
+  background: var(--jbcom-bg) !important;
+}
+
 .wy-nav-content {
-    max-width: 900px;
+  background: var(--jbcom-bg) !important;
 }
 
-/* Better admonition styling */
-.admonition {
-    border-radius: 4px;
+.rst-content {
+  color: var(--jbcom-text-primary) !important;
+}
+
+/* Links */
+a, a:visited {
+  color: var(--jbcom-primary) !important;
+}
+
+a:hover {
+  color: var(--jbcom-secondary) !important;
+}
+
+/* Code Blocks */
+code, pre, .rst-content tt, .rst-content code {
+  font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+  background-color: var(--jbcom-surface) !important;
+  color: var(--jbcom-text-primary) !important;
+  border: 1px solid rgba(6, 182, 212, 0.2) !important;
+}
+
+.highlight {
+  background: var(--jbcom-surface) !important;
+}
+
+.highlight pre {
+  background: var(--jbcom-surface) !important;
+  color: var(--jbcom-text-primary) !important;
+}
+
+/* Admonitions */
+.rst-content .note,
+.rst-content .tip,
+.rst-content .hint,
+.rst-content .important {
+  background-color: rgba(6, 182, 212, 0.1) !important;
+  border-color: var(--jbcom-primary) !important;
+}
+
+.rst-content .warning,
+.rst-content .caution {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  border-color: var(--jbcom-warning) !important;
+}
+
+.rst-content .danger,
+.rst-content .error {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  border-color: var(--jbcom-error) !important;
+}
+
+/* Tables */
+.rst-content table.docutils {
+  border-color: var(--jbcom-surface) !important;
+}
+
+.rst-content table.docutils thead {
+  background-color: var(--jbcom-surface) !important;
+}
+
+.rst-content table.docutils tbody tr {
+  background-color: var(--jbcom-bg) !important;
+}
+
+.rst-content table.docutils tbody tr:nth-child(2n) {
+  background-color: var(--jbcom-surface) !important;
+}
+
+/* Search Box */
+.wy-side-nav-search input[type="text"] {
+  background-color: var(--jbcom-surface) !important;
+  border: 1px solid var(--jbcom-primary) !important;
+  color: var(--jbcom-text-primary) !important;
+}
+
+/* Focus States (Accessibility) */
+a:focus,
+button:focus,
+input:focus {
+  outline: 2px solid var(--jbcom-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--jbcom-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--jbcom-primary);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--jbcom-secondary);
 }
