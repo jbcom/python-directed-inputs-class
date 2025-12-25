@@ -57,6 +57,7 @@ source_suffix = {
 
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 html_title = f"{project} Documentation"
 
 html_theme_options = {
@@ -65,6 +66,7 @@ html_theme_options = {
     "sticky_navigation": True,
     "includehidden": True,
     "titles_only": False,
+    "style_nav_header_background": "#0a0f1a",
 }
 
 # -- Extension configuration -------------------------------------------------
