@@ -78,7 +78,7 @@ This package is part of the jbcom ecosystem:
 ## Versioning
 
 This project uses **SemVer** (Semantic Versioning):
-- Format: `MAJOR.MINOR.PATCH` (e.g., `1.1.0`)
+- Format: `MAJOR.MINOR.PATCH` (e.g., `1.2.0`)
 - Releases are automated via GitHub Actions CI workflow
 - Uses `python-semantic-release` for changelog and version management
 
@@ -129,7 +129,7 @@ This project uses **SemVer** (Semantic Versioning):
 
 ```bash
 # Update extended-data-types
-uv add "extended-data-types>=YYYY.MM.PATCH"
+uv add "extended-data-types>=1.2.0"
 
 # Verify
 uv run pytest tests/ -v

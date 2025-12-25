@@ -2,6 +2,10 @@
 
 <!-- version list -->
 
+## v1.2.0 (2025-12-25)
+
+- Formally migrate versioning scheme from CalVer (202511.9.0) to SemVer
+
 ## v1.1.0 (2025-12-24)
 
 ### Bug Fixes
