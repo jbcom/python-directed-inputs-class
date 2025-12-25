@@ -129,7 +129,7 @@ This project uses **SemVer** (Semantic Versioning):
 
 ```bash
 # Update extended-data-types
-uv add "extended-data-types>=1.2.0"
+uv add "extended-data-types>=5.1.2"
 
 # Verify
 uv run pytest tests/ -v
