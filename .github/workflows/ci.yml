@@ -76,72 +76,66 @@ jobs:
       - run: uvx ruff format --check src/ tests/
 
   release:
-    name: Release
+    name: Semantic Release
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [build, test, lint]
     runs-on: ubuntu-latest
+    
+    # Increase concurrency timeout for semantic-release
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
 
     permissions:
       contents: write
       id-token: write
+      issues: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.CI_GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Git config
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
 
       - uses: hynek/setup-cached-uv@v2
 
       - name: Install python-semantic-release
         run: uv tool install python-semantic-release
 
-      - name: Check if release needed
-        id: check
+      - name: Python Semantic Release
+        id: release
         env:
           GH_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
+          REPOSITORY_USERNAME: __token__
+          REPOSITORY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
-          NEW_VERSION=$(semantic-release --noop version --print 2>/dev/null || echo "")
-          CURRENT_VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
-          echo "Current version: $CURRENT_VERSION"
-          echo "New version: $NEW_VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          if [ -n "$NEW_VERSION" ] && [ "$NEW_VERSION" != "$CURRENT_VERSION" ]; then
-            echo "should_release=true" >> $GITHUB_OUTPUT
-            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-            echo "Release will be created for version $NEW_VERSION"
-          else
-            echo "should_release=false" >> $GITHUB_OUTPUT
-            echo "No new release needed"
-          fi
-
-      - name: Create semantic release
-        if: steps.check.outputs.should_release == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
-        run: |
+          # Run semantic-release version and publish
           semantic-release version
           semantic-release publish
-
-      - name: Build package
-        if: steps.check.outputs.should_release == 'true'
-        run: uv build
+          
+          # Capture the new version if created
+          NEW_VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "")
+          if [ -n "$NEW_VERSION" ]; then
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "released=true" >> $GITHUB_OUTPUT
+          else
+            echo "released=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Publish to PyPI
-        if: steps.check.outputs.should_release == 'true'
+        if: steps.release.outputs.released == 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_TOKEN }}
           skip-existing: true
-
-      - name: Upload release artifacts
-        if: steps.check.outputs.should_release == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
-        run: |
-          gh release upload v${{ steps.check.outputs.version }} dist/* --clobber
+          verbose: true
