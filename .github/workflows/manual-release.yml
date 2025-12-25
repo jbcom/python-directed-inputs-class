@@ -34,7 +34,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: v${{ inputs.version }}
-          token: ${{ secrets.CI_GITHUB_TOKEN }}
+          # Use default GITHUB_TOKEN for checkout, CI_GITHUB_TOKEN for gh commands
 
       - name: Verify version tag exists
         run: |
