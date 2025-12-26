@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "directed-inputs-class"
+name = "@extended-data-library/inputs"
 version = "1.2.0"
 description = "Directed inputs class consumes and processes inputs from sources beyond args and kwargs"
 requires-python = ">=3.9"
