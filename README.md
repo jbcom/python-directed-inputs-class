@@ -1,13 +1,17 @@
-# Directed Inputs Class
+# @extended-data-library/inputs
 
 ![Directed Inputs Class Logo](docs/_static/logo.webp)
 
 *🛠️ Manage your Python inputs efficiently! 🎯*
 
-[![CI Status](https://github.com/jbcom/directed-inputs-class/workflows/CI/badge.svg)](https://github.com/jbcom/directed-inputs-class/actions?query=workflow%3ACI)
-[![Documentation Status](https://readthedocs.org/projects/directed-inputs-class/badge/?version=latest)](https://directed-inputs-class.readthedocs.io/en/latest/?badge=latest)
+[![CI Status](https://github.com/extended-data-library/inputs/workflows/CI/badge.svg)](https://github.com/extended-data-library/inputs/actions?query=workflow%3ACI)
+[![Documentation Status](https://extendeddata.dev)](https://extendeddata.dev)
 [![PyPI Package latest release](https://img.shields.io/pypi/v/directed-inputs-class.svg)](https://pypi.org/project/directed-inputs-class/)
 [![Supported versions](https://img.shields.io/pypi/pyversions/directed-inputs-class.svg)](https://pypi.org/project/directed-inputs-class/)
+
+## 🏢 Enterprise Context
+
+**Extended Data** is the Infrastructure & Libs division of the [jbcom enterprise](https://jbcom.github.io). This input management library is part of a coherent suite of specialized tools, sharing a unified design system and interconnected with sibling organizations like [Agentic](https://agentic.dev) and [Strata](https://strata.game).
 
 Directed Inputs Class provides flexible, transparent input handling for Python applications. Load inputs from environment variables, stdin, or dictionaries and have them automatically injected into your method arguments.
 

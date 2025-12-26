@@ -31,9 +31,9 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/jbcom/directed-inputs-class#readme"
-Issues = "https://github.com/jbcom/directed-inputs-class/issues"
-Source = "https://github.com/jbcom/directed-inputs-class"
+Documentation = "https://extendeddata.dev"
+Issues = "https://github.com/extended-data-library/inputs/issues"
+Source = "https://github.com/extended-data-library/inputs"
 
 [project.optional-dependencies]
 tests = [
